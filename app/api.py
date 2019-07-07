@@ -2,6 +2,15 @@ import json
 from bottle import HTTPResponse
 
 
+##MY CODE
+class PingResponse(HTTPResponse):
+    def __init__(self):
+
+        super(HTTPResponse, self).__init__(
+            status=200
+        )
+##MY CODE
+
 class MoveResponse(HTTPResponse):
     def __init__(self, move):
         assert move in ['up', 'down', 'left', 'right'], \
