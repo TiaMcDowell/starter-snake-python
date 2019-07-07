@@ -71,67 +71,75 @@ def move():
 	direction = directions[0]
 	if(len(directions) > 1):
 		#Assign values to spaces not already ruled out.
-		direction = value_assign(head, directions, other_snakes_bodies, food, length_of_board)
+		direction = value_assign(head, body, directions, other_snakes_bodies, food, length_of_board)
 		if direction == 'random':
 			direction = random.choice(directions)
-	print(data)
+	#print(data)
 	print ("Moving %s" % direction)
 	return MoveResponse(direction)
 
 #assign value to the spaces arround head in order to choose best move
-def value_assign(head, directions, other_snakes_bodies, food, length_of_board):
+def value_assign(head, body, directions, other_snakes_bodies, food, length_of_board):
 	value_right = 0
 	value_left = 0
 	value_up = 0
 	value_down = 0
+	adj_snake_heads = []
+
+	for i in other_snakes_bodies:
+		adj_snake_heads.append({'x':i[0]['x'] + 1, 'y':i[0]['y']})
+		adj_snake_heads.append({'x':i[0]['x'] - 1, 'y':i[0]['y']})
+		adj_snake_heads.append({'x':i[0]['x'], 'y':i[0]['y'] + 1})
+		adj_snake_heads.append({'x':i[0]['x'], 'y':i[0]['y'] - 1})
+
 	if 'right' in directions:
 		right = []
 		right.append({'x': head['x'] + 1, 'y': head['y']})
 		adj_right = [{'x': head['x'] + 2, 'y': head['y']}, {'x': head['x'] + 1, 'y': head['y'] + 1}, {'x': head['x'] + 1, 'y': head['y'] - 1}]
 		for i in adj_right:
-			if i['x'] < length_of_board:
+			if i['x'] < length_of_board and i['y'] < length_of_board and i['y'] > -1:
 				for j in other_snakes_bodies:
-					if not i in j:
+					if not i in j and not i in body:
 						 right.append(i)
 		while(len(right) != 0):
-			 value_right += value_point(right.pop(), other_snakes_bodies, food)
+			 value_right += value_point(right.pop(), adj_snake_heads, food)
 
 	if 'left' in directions:
 		left = []
 		left.append({'x': head['x'] - 1, 'y': head['y']})
-		adj_left = [{'x': head['x'] - 2, 'y': head['y']}, {'x': head['x'] + 1, 'y': head['y'] + 1}, {'x': head['x'] + 1, 'y': head['y'] - 1}]
+		adj_left = [{'x': head['x'] - 2, 'y': head['y']}, {'x': head['x'] - 1, 'y': head['y'] + 1}, {'x': head['x'] - 1, 'y': head['y'] - 1}]
 		for i in adj_left:
-			if i['x'] < -1:
+			if i['x'] > -1 and i['y'] < length_of_board and i['y'] > -1:
 				for j in other_snakes_bodies:
-					if not i in j:
+					if not i in j and not i in body:
 						 left.append(i)
 		while(len(left) != 0):
-			 value_left += value_point(left.pop(), other_snakes_bodies, food)
+			 value_left += value_point(left.pop(), adj_snake_heads, food)
 
 	if 'up' in directions:
 		up = []
 		up.append({'x': head['x'], 'y': head['y'] - 1})
 		adj_up = [{'y': head['y'] - 2, 'x': head['x']}, {'y': head['y'] - 1, 'x': head['x'] + 1}, {'y': head['y'] - 1, 'x': head['x'] - 1}]
 		for i in adj_up:
-			if i['y'] > -1:
+			if i['y'] > -1 and i['x'] < length_of_board and i['x'] > -1:
 				for j in other_snakes_bodies:
-					if not i in j:
+					if not i in j and not i in body:
 						 up.append(i)
 		while(len(up) != 0):
-			 value_up += value_point(up.pop(), other_snakes_bodies, food)
+			 value_up += value_point(up.pop(), adj_snake_heads, food)
 
 	if 'down' in directions:
 		down = []
 		down.append({'y': head['y'] + 1, 'x': head['x']})
 		adj_down = [{'y': head['y'] + 2, 'x': head['x']}, {'y': head['y'] + 1, 'x': head['x'] + 1}, {'y': head['y'] + 1, 'x': head['x'] - 1}]
 		for i in adj_down:
-			if i['y'] < length_of_board:
+			if i['y'] < length_of_board and i['x'] < length_of_board and i['x'] > -1:
 				for j in other_snakes_bodies:
-					if not i in j:
+					if not i in j and not i in body:
 						 down.append(i)
 		while(len(down) != 0):
-			 value_down += value_point(down.pop(), other_snakes_bodies, food)
-
+			 value_down += value_point(down.pop(), adj_snake_heads, food)
+	print("LEFT = ", value_left, "RIGHT = ", value_right, "UP = ", value_up, "DOWN = ", value_down)
 	if value_right > value_left and value_right > value_down and value_right > value_up:
 		return 'right'
 	if value_left > value_right and value_left > value_down and value_left > value_up:
@@ -143,18 +151,11 @@ def value_assign(head, directions, other_snakes_bodies, food, length_of_board):
 	else:
 		return 'random'
 #adds value so single point	
-def value_point(coord, other_snakes_bodies, food):
+def value_point(coord, adj_snake_heads, food):
 	if coord in food:
 		return 3
-	for i in other_snakes_bodies:
-		if i[0]['x'] == coord['x'] +1 and i[0]['y'] == coord['y']:
-			return 1
-		if i[0]['x'] == coord['x'] - 1 and i[0]['y'] == coord['y']:
-			return 1
-		if i[0]['x'] == coord['x'] and i[0]['y'] == coord['y'] + 1:
-			return 1
-		if i[0]['x'] == coord['x'] +1 and i[0]['y'] == coord['y'] - 1:
-			return 1
+	if coord in adj_snake_heads:
+		return 1
 	return 2
 
 #check if direction is valid, remove from directions if not
