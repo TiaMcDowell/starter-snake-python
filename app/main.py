@@ -39,6 +39,7 @@ def move():
 	data = bottle.request.json
 	body = data['you']['body']
 	length_of_board = data['board']['height']
+	food = data['board']['food']
 	head = body[0]
 	print(head)
 	other_snakes_bodies = []
@@ -52,32 +53,120 @@ def move():
 	
 	for j in other_snakes_bodies:
 		for i in j:
-			if 'right' in directions and(i['x'] == head['x'] + 1 and head['y'] == i['y']):
-				directions.remove('right')
-			if 'left' in directions and (i['x'] == head['x'] - 1 and head['y'] == i['y']):
-				directions.remove('left')
-			if 'down' in directions and (i['y'] == head['y'] + 1 and head['x'] == i['x']):
-				directions.remove('down')
-			if 'up' in directions and (i['y'] == head['y'] - 1 and head['x'] == i['x']): 
-				directions.remove('up')
+			check_dir(i, directions, head)
 
 	
 	#Do not run into wall or self
 	for i in body:
-		if 'right' in directions and((i['x'] == head['x'] + 1 and head['y'] == i['y'])or head['x'] + 1 == length_of_board):
+		check_dir(i, directions, head)
+		if 'right' in directions and(head['x'] + 1 == length_of_board):
 			directions.remove('right')
-		if 'left' in directions and ((i['x'] == head['x'] - 1 and head['y'] == i['y'])or head['x'] - 1 == -1):
+		if 'left' in directions and (head['x'] - 1 == -1):
 			directions.remove('left')
-		if 'down' in directions and ((i['y'] == head['y'] + 1 and head['x'] == i['x']) or head['y'] + 1 == length_of_board):
+		if 'down' in directions and (head['y'] + 1 == length_of_board):
 			directions.remove('down')
-		if 'up' in directions and ((i['y'] == head['y'] - 1 and head['x'] == i['x'])or head['y'] - 1 == -1): 
+		if 'up' in directions and (head['y'] - 1 == -1): 
 			directions.remove('up')
 	print(directions)
-	direction = random.choice(directions)
+	direction = directions[0]
+	if(len(directions) > 1):
+		#Assign values to spaces not already ruled out.
+		direction = value_assign(head, directions, other_snakes_bodies, food, length_of_board)
+		if direction == 'random':
+			direction = random.choice(directions)
 	print(data)
 	print ("Moving %s" % direction)
 	return MoveResponse(direction)
 
+#assign value to the spaces arround head in order to choose best move
+def value_assign(head, directions, other_snakes_bodies, food, length_of_board):
+	value_right = 0
+	value_left = 0
+	value_up = 0
+	value_down = 0
+	if 'right' in directions:
+		right = []
+		right.append({'x': head['x'] + 1, 'y': head['y']})
+		adj_right = [{'x': head['x'] + 2, 'y': head['y']}, {'x': head['x'] + 1, 'y': head['y'] + 1}, {'x': head['x'] + 1, 'y': head['y'] - 1}]
+		for i in adj_right:
+			if i['x'] < length_of_board:
+				for j in other_snakes_bodies:
+					if not i in j:
+						 right.append(i)
+		while(len(right) != 0):
+			 value_right += value_point(right.pop(), other_snakes_bodies, food)
+
+	if 'left' in directions:
+		left = []
+		left.append({'x': head['x'] - 1, 'y': head['y']})
+		adj_left = [{'x': head['x'] - 2, 'y': head['y']}, {'x': head['x'] + 1, 'y': head['y'] + 1}, {'x': head['x'] + 1, 'y': head['y'] - 1}]
+		for i in adj_left:
+			if i['x'] < -1:
+				for j in other_snakes_bodies:
+					if not i in j:
+						 left.append(i)
+		while(len(left) != 0):
+			 value_left += value_point(left.pop(), other_snakes_bodies, food)
+
+	if 'up' in directions:
+		up = []
+		up.append({'x': head['x'], 'y': head['y'] - 1})
+		adj_up = [{'y': head['y'] - 2, 'x': head['x']}, {'y': head['y'] - 1, 'x': head['x'] + 1}, {'y': head['y'] - 1, 'x': head['x'] - 1}]
+		for i in adj_up:
+			if i['y'] > -1:
+				for j in other_snakes_bodies:
+					if not i in j:
+						 up.append(i)
+		while(len(up) != 0):
+			 value_up += value_point(up.pop(), other_snakes_bodies, food)
+
+	if 'down' in directions:
+		down = []
+		down.append({'y': head['y'] + 1, 'x': head['x']})
+		adj_down = [{'y': head['y'] + 2, 'x': head['x']}, {'y': head['y'] + 1, 'x': head['x'] + 1}, {'y': head['y'] + 1, 'x': head['x'] - 1}]
+		for i in adj_down:
+			if i['y'] < length_of_board:
+				for j in other_snakes_bodies:
+					if not i in j:
+						 down.append(i)
+		while(len(down) != 0):
+			 value_down += value_point(down.pop(), other_snakes_bodies, food)
+
+	if value_right > value_left and value_right > value_down and value_right > value_up:
+		return 'right'
+	if value_left > value_right and value_left > value_down and value_left > value_up:
+		return 'left'
+	if value_up > value_left and value_up > value_down and value_up > value_right:
+		return 'up'
+	if value_down > value_left and value_down > value_right and value_down > value_up:
+		return 'down'
+	else:
+		return 'random'
+#adds value so single point	
+def value_point(coord, other_snakes_bodies, food):
+	if coord in food:
+		return 3
+	for i in other_snakes_bodies:
+		if i[0]['x'] == coord['x'] +1 and i[0]['y'] == coord['y']:
+			return 1
+		if i[0]['x'] == coord['x'] - 1 and i[0]['y'] == coord['y']:
+			return 1
+		if i[0]['x'] == coord['x'] and i[0]['y'] == coord['y'] + 1:
+			return 1
+		if i[0]['x'] == coord['x'] +1 and i[0]['y'] == coord['y'] - 1:
+			return 1
+	return 2
+
+#check if direction is valid, remove from directions if not
+def check_dir(coord, directions, head):
+	if 'right' in directions and(coord['x'] == head['x'] + 1 and head['y'] == coord['y']):
+		directions.remove('right')
+	if 'left' in directions and (coord['x'] == head['x'] - 1 and head['y'] == coord['y']):
+		directions.remove('left')
+	if 'down' in directions and (coord['y'] == head['y'] + 1 and head['x'] == coord['x']):
+		directions.remove('down')
+	if 'up' in directions and (coord['y'] == head['y'] - 1 and head['x'] == coord['x']): 
+		directions.remove('up')
 
 @bottle.post('/end')
 def end():
