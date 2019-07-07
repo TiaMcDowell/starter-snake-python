@@ -41,23 +41,37 @@ def move():
     length_of_board = data['board']['height']
     head = body[0]
     print(head)
-    # TODO: Do things with data
+    other_snakes_bodies = []
     body.remove(head)
     directions = ['up', 'down', 'left', 'right']
-    print(directions)
+	
+	#get other snakes bodies
+    for i in data['board']['snakes']:
+        if i['id'] != data['you']['id']:
+            other_snakes_bodies.append(i['body'])
+    
+    for j in other_snakes_bodies:
+        for i in j:
+            if 'right' in directions and(i['x'] == head['x'] + 1 and head['y'] == i['y']):
+                directions.remove('right')
+            if 'left' in directions and (i['x'] == head['x'] - 1 and head['y'] == i['y']):
+                directions.remove('left')
+            if 'down' in directions and (i['y'] == head['y'] + 1 and head['x'] == i['x']):
+                directions.remove('down')
+            if 'up' in directions and (i['y'] == head['y'] - 1 and head['x'] == i['x']): 
+                directions.remove('up')
+
+    
+    #Do not run into wall or self
     for i in body:
         if 'right' in directions and((i['x'] == head['x'] + 1 and head['y'] == i['y'])or head['x'] + 1 == length_of_board):
             directions.remove('right')
-            print('I_HAVE_REMOVED_RIGHT_i_IS ', i)
         if 'left' in directions and ((i['x'] == head['x'] - 1 and head['y'] == i['y'])or head['x'] - 1 == -1):
             directions.remove('left')
-            print('I_HAVE_REMOVED_LEFT_i_IS ', i)
         if 'down' in directions and ((i['y'] == head['y'] + 1 and head['x'] == i['x']) or head['y'] + 1 == length_of_board):
             directions.remove('down')
-            print('I_HAVE_REMOVED_DOWN_i_IS ', i)
         if 'up' in directions and ((i['y'] == head['y'] - 1 and head['x'] == i['x'])or head['y'] - 1 == -1): 
             directions.remove('up')
-            print('I_HAVE_REMOVED_UP_i_IS ', i)
     print(directions)
     direction = random.choice(directions)
     print(data)
