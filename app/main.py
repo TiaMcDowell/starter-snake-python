@@ -72,8 +72,6 @@ def move():
 	if(len(directions) > 1):
 		#Assign values to spaces not already ruled out.
 		direction = value_assign(head, body, directions, other_snakes_bodies, food, length_of_board)
-		if direction == 'random':
-			direction = random.choice(directions)
 	#print(data)
 	print ("Moving %s" % direction)
 	return MoveResponse(direction)
@@ -149,14 +147,31 @@ def value_assign(head, body, directions, other_snakes_bodies, food, length_of_bo
 	if value_down > value_left and value_down > value_right and value_down > value_up:
 		return 'down'
 	else:
-		return 'random'
+		value_directions = {'up': value_up, 'down': value_down, 'left': value_left, 'right': value_right}
+		valid_value_directions = {}
+		max_direction = 0
+
+		for i in value_directions:
+			if value_directions[i] != 0:
+				valid_value_directions[i] = value_directions[i]
+			if value_directions[i] > max_direction:
+				max_direction = value_directions[i]
+		print(value_directions, " = value_directions")
+		print(valid_value_directions, " = valid_value_directions")
+		print(max_direction, " = max_direction")
+		value_directions = {}
+		for i in valid_value_directions:
+			if valid_value_directions[i] == max_direction:
+				value_directions[i] = valid_value_directions[i]
+		print(value_directions, " = value_directions")
+		return random.choice(list(value_directions.keys()))
 #adds value so single point	
 def value_point(coord, adj_snake_heads, food):
-	if coord in food:
-		return 3
 	if coord in adj_snake_heads:
 		return 1
-	return 2
+	if coord in food:
+		return 4
+	return 3
 
 #check if direction is valid, remove from directions if not
 def check_dir(coord, directions, head):
