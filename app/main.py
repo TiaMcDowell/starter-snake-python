@@ -47,6 +47,7 @@ def move():
 	body.remove(head)
 	directions = ['up', 'down', 'left', 'right']
 	
+	print(data['turn'])
 	#get other snakes bodies
 	for i in data['board']['snakes']:
 		if i['id'] != data['you']['id']:
@@ -97,7 +98,10 @@ def value_assign(head, body, directions, other_snakes_bodies, food, length_of_bo
 		adj_right = []
 		adj_right = [{'x': head['x'] + 2, 'y': head['y']}, {'x': head['x'] + 1, 'y': head['y'] + 1}, {'x': head['x'] + 1, 'y': head['y'] - 1}]
 		for coord in range(3):
-			adj_right = adj_right + adj_points(adj_right[coord])
+			adj_right.extend(adj_points(adj_right[coord]))
+		print("RIGHT", adj_right)
+		adj_right = [dict(t) for t in {tuple(d.items()) for d in adj_right}]
+		print("RIGHT", adj_right)
 		for i in adj_right:
 			if i['x'] < length_of_board and i['y'] < length_of_board and i['y'] > -1:
 				for j in other_snakes_bodies:
@@ -111,7 +115,10 @@ def value_assign(head, body, directions, other_snakes_bodies, food, length_of_bo
 		left.append({'x': head['x'] - 1, 'y': head['y']})
 		adj_left = [{'x': head['x'] - 2, 'y': head['y']}, {'x': head['x'] - 1, 'y': head['y'] + 1}, {'x': head['x'] - 1, 'y': head['y'] - 1}]
 		for coord in range(3):
-			adj_left = adj_left + adj_points(adj_left[coord])
+			adj_left.extend(adj_points(adj_left[coord]))
+		print("LEFT", adj_left)
+		adj_left = [dict(t) for t in {tuple(d.items()) for d in adj_left}]
+		print("LEFT", adj_left)
 		for i in adj_left:
 			if i['x'] > -1 and i['y'] < length_of_board and i['y'] > -1:
 				for j in other_snakes_bodies:
@@ -125,7 +132,10 @@ def value_assign(head, body, directions, other_snakes_bodies, food, length_of_bo
 		up.append({'x': head['x'], 'y': head['y'] - 1})
 		adj_up = [{'y': head['y'] - 2, 'x': head['x']}, {'y': head['y'] - 1, 'x': head['x'] + 1}, {'y': head['y'] - 1, 'x': head['x'] - 1}]
 		for coord in range(3):
-			adj_up = adj_up + adj_points(adj_up[coord])
+			adj_up.extend(adj_points(adj_up[coord]))
+		print(adj_up)
+		adj_up = [dict(t) for t in {tuple(d.items()) for d in adj_up}]
+		print(adj_up)
 		for i in adj_up:
 			if i['y'] > -1 and i['x'] < length_of_board and i['x'] > -1:
 				for j in other_snakes_bodies:
@@ -138,8 +148,12 @@ def value_assign(head, body, directions, other_snakes_bodies, food, length_of_bo
 		down = []
 		down.append({'y': head['y'] + 1, 'x': head['x']})
 		adj_down = [{'y': head['y'] + 2, 'x': head['x']}, {'y': head['y'] + 1, 'x': head['x'] + 1}, {'y': head['y'] + 1, 'x': head['x'] - 1}]
+		#print(adj_down)
 		for coord in range(3):
-			adj_down = adj_down + adj_points(adj_down[coord])
+			adj_down.extend(adj_points(adj_down[coord]))
+		print(adj_down)
+		adj_down = [dict(t) for t in {tuple(d.items()) for d in adj_down}]
+		print(adj_down)
 		for i in adj_down:
 			if i['y'] < length_of_board and i['x'] < length_of_board and i['x'] > -1:
 				for j in other_snakes_bodies:
