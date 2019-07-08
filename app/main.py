@@ -182,7 +182,7 @@ def adj_points(coord):
 #adds value so single point	
 def value_point(coord, adj_snake_heads, food, head):
 	if coord in adj_snake_heads:
-		return 1
+		return -10
 	if coord in food:
 		return 4
 	if (coord['x'] + 1 == head['x'] or coord['x'] - 1 == head['x'] or coord['y'] + 1 == head['y'] or coord['y'] - 1 == head['y']):
