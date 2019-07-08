@@ -93,7 +93,10 @@ def value_assign(head, body, directions, other_snakes_bodies, food, length_of_bo
 	if 'right' in directions:
 		right = []
 		right.append({'x': head['x'] + 1, 'y': head['y']})
+		adj_right = []
 		adj_right = [{'x': head['x'] + 2, 'y': head['y']}, {'x': head['x'] + 1, 'y': head['y'] + 1}, {'x': head['x'] + 1, 'y': head['y'] - 1}]
+		for coord in range(3):
+			adj_right = adj_right + adj_points(adj_right[coord])
 		for i in adj_right:
 			if i['x'] < length_of_board and i['y'] < length_of_board and i['y'] > -1:
 				for j in other_snakes_bodies:
@@ -106,6 +109,8 @@ def value_assign(head, body, directions, other_snakes_bodies, food, length_of_bo
 		left = []
 		left.append({'x': head['x'] - 1, 'y': head['y']})
 		adj_left = [{'x': head['x'] - 2, 'y': head['y']}, {'x': head['x'] - 1, 'y': head['y'] + 1}, {'x': head['x'] - 1, 'y': head['y'] - 1}]
+		for coord in range(3):
+			adj_left = adj_left + adj_points(adj_left[coord])
 		for i in adj_left:
 			if i['x'] > -1 and i['y'] < length_of_board and i['y'] > -1:
 				for j in other_snakes_bodies:
@@ -118,6 +123,8 @@ def value_assign(head, body, directions, other_snakes_bodies, food, length_of_bo
 		up = []
 		up.append({'x': head['x'], 'y': head['y'] - 1})
 		adj_up = [{'y': head['y'] - 2, 'x': head['x']}, {'y': head['y'] - 1, 'x': head['x'] + 1}, {'y': head['y'] - 1, 'x': head['x'] - 1}]
+		for coord in range(3):
+			adj_up = adj_up + adj_points(adj_up[coord])
 		for i in adj_up:
 			if i['y'] > -1 and i['x'] < length_of_board and i['x'] > -1:
 				for j in other_snakes_bodies:
@@ -130,6 +137,8 @@ def value_assign(head, body, directions, other_snakes_bodies, food, length_of_bo
 		down = []
 		down.append({'y': head['y'] + 1, 'x': head['x']})
 		adj_down = [{'y': head['y'] + 2, 'x': head['x']}, {'y': head['y'] + 1, 'x': head['x'] + 1}, {'y': head['y'] + 1, 'x': head['x'] - 1}]
+		for coord in range(3):
+			adj_down = adj_down + adj_points(adj_down[coord])
 		for i in adj_down:
 			if i['y'] < length_of_board and i['x'] < length_of_board and i['x'] > -1:
 				for j in other_snakes_bodies:
@@ -165,6 +174,11 @@ def value_assign(head, body, directions, other_snakes_bodies, food, length_of_bo
 				value_directions[i] = valid_value_directions[i]
 		print(value_directions, " = value_directions")
 		return random.choice(list(value_directions.keys()))
+
+#adds adj points to list given
+def adj_points(coord):
+	return [{'x': coord['x'] - 1, 'y': coord['y']},{'x': coord['x'] + 1, 'y': coord['y']},{'x': coord['x'], 'y': coord['y'] - 1},{'x': coord['x'], 'y': coord['y'] + 1}]
+
 #adds value so single point	
 def value_point(coord, adj_snake_heads, food):
 	if coord in adj_snake_heads:
