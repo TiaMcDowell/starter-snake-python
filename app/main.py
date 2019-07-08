@@ -41,6 +41,7 @@ def move():
 	length_of_board = data['board']['height']
 	food = data['board']['food']
 	head = body[0]
+	health = data['you']['health']
 	print(head)
 	other_snakes_bodies = []
 	body.remove(head)
@@ -71,13 +72,13 @@ def move():
 	direction = directions[0]
 	if(len(directions) > 1):
 		#Assign values to spaces not already ruled out.
-		direction = value_assign(head, body, directions, other_snakes_bodies, food, length_of_board)
+		direction = value_assign(head, body, directions, other_snakes_bodies, food, length_of_board, health)
 	#print(data)
 	print ("Moving %s" % direction)
 	return MoveResponse(direction)
 
 #assign value to the spaces arround head in order to choose best move
-def value_assign(head, body, directions, other_snakes_bodies, food, length_of_board):
+def value_assign(head, body, directions, other_snakes_bodies, food, length_of_board, health):
 	value_right = 0
 	value_left = 0
 	value_up = 0
@@ -103,7 +104,7 @@ def value_assign(head, body, directions, other_snakes_bodies, food, length_of_bo
 					if not i in j and not i in body:
 						 right.append(i)
 		while(len(right) != 0):
-			 value_right += value_point(right.pop(), adj_snake_heads, food, head)
+			 value_right += value_point(right.pop(), adj_snake_heads, food, head, health)
 
 	if 'left' in directions:
 		left = []
@@ -117,7 +118,7 @@ def value_assign(head, body, directions, other_snakes_bodies, food, length_of_bo
 					if not i in j and not i in body:
 						 left.append(i)
 		while(len(left) != 0):
-			 value_left += value_point(left.pop(), adj_snake_heads, food, head)
+			 value_left += value_point(left.pop(), adj_snake_heads, food, head, health)
 
 	if 'up' in directions:
 		up = []
@@ -131,7 +132,7 @@ def value_assign(head, body, directions, other_snakes_bodies, food, length_of_bo
 					if not i in j and not i in body:
 						 up.append(i)
 		while(len(up) != 0):
-			 value_up += value_point(up.pop(), adj_snake_heads, food, head)
+			 value_up += value_point(up.pop(), adj_snake_heads, food, head, health)
 
 	if 'down' in directions:
 		down = []
@@ -145,7 +146,7 @@ def value_assign(head, body, directions, other_snakes_bodies, food, length_of_bo
 					if not i in j and not i in body:
 						 down.append(i)
 		while(len(down) != 0):
-			 value_down += value_point(down.pop(), adj_snake_heads, food, head)
+			 value_down += value_point(down.pop(), adj_snake_heads, food, head, health)
 	print("LEFT = ", value_left, "RIGHT = ", value_right, "UP = ", value_up, "DOWN = ", value_down)
 	if value_right > value_left and value_right > value_down and value_right > value_up:
 		return 'right'
@@ -180,11 +181,14 @@ def adj_points(coord):
 	return [{'x': coord['x'] - 1, 'y': coord['y']},{'x': coord['x'] + 1, 'y': coord['y']},{'x': coord['x'], 'y': coord['y'] - 1},{'x': coord['x'], 'y': coord['y'] + 1}]
 
 #adds value so single point	
-def value_point(coord, adj_snake_heads, food, head):
+def value_point(coord, adj_snake_heads, food, head, health):
 	if coord in adj_snake_heads:
 		return -10
 	if coord in food:
-		return 4
+		if(health > 20):
+			return 4
+		else:
+			return 10
 	if (coord['x'] + 1 == head['x'] or coord['x'] - 1 == head['x'] or coord['y'] + 1 == head['y'] or coord['y'] - 1 == head['y']):
 		return 3
 	return 2
