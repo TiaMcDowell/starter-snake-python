@@ -103,7 +103,7 @@ def value_assign(head, body, directions, other_snakes_bodies, food, length_of_bo
 					if not i in j and not i in body:
 						 right.append(i)
 		while(len(right) != 0):
-			 value_right += value_point(right.pop(), adj_snake_heads, food)
+			 value_right += value_point(right.pop(), adj_snake_heads, food, head)
 
 	if 'left' in directions:
 		left = []
@@ -117,7 +117,7 @@ def value_assign(head, body, directions, other_snakes_bodies, food, length_of_bo
 					if not i in j and not i in body:
 						 left.append(i)
 		while(len(left) != 0):
-			 value_left += value_point(left.pop(), adj_snake_heads, food)
+			 value_left += value_point(left.pop(), adj_snake_heads, food, head)
 
 	if 'up' in directions:
 		up = []
@@ -131,7 +131,7 @@ def value_assign(head, body, directions, other_snakes_bodies, food, length_of_bo
 					if not i in j and not i in body:
 						 up.append(i)
 		while(len(up) != 0):
-			 value_up += value_point(up.pop(), adj_snake_heads, food)
+			 value_up += value_point(up.pop(), adj_snake_heads, food, head)
 
 	if 'down' in directions:
 		down = []
@@ -145,7 +145,7 @@ def value_assign(head, body, directions, other_snakes_bodies, food, length_of_bo
 					if not i in j and not i in body:
 						 down.append(i)
 		while(len(down) != 0):
-			 value_down += value_point(down.pop(), adj_snake_heads, food)
+			 value_down += value_point(down.pop(), adj_snake_heads, food, head)
 	print("LEFT = ", value_left, "RIGHT = ", value_right, "UP = ", value_up, "DOWN = ", value_down)
 	if value_right > value_left and value_right > value_down and value_right > value_up:
 		return 'right'
@@ -180,12 +180,14 @@ def adj_points(coord):
 	return [{'x': coord['x'] - 1, 'y': coord['y']},{'x': coord['x'] + 1, 'y': coord['y']},{'x': coord['x'], 'y': coord['y'] - 1},{'x': coord['x'], 'y': coord['y'] + 1}]
 
 #adds value so single point	
-def value_point(coord, adj_snake_heads, food):
+def value_point(coord, adj_snake_heads, food, head):
 	if coord in adj_snake_heads:
 		return 1
 	if coord in food:
 		return 4
-	return 3
+	if (coord['x'] + 1 == head['x'] or coord['x'] - 1 == head['x'] or coord['y'] + 1 == head['y'] or coord['y'] - 1 == head['y']):
+		return 3
+	return 2
 
 #check if direction is valid, remove from directions if not
 def check_dir(coord, directions, head):
